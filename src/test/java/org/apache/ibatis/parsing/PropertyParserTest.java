@@ -15,10 +15,10 @@
  */
 package org.apache.ibatis.parsing;
 
-import java.util.Properties;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
 
 class PropertyParserTest {
 
@@ -30,16 +30,20 @@ class PropertyParserTest {
     props.setProperty("tableName", "members");
     props.setProperty("orderColumn", "member_id");
     props.setProperty("a:b", "c");
-    Assertions.assertThat(PropertyParser.parse("${key}", props)).isEqualTo("value");
-    Assertions.assertThat(PropertyParser.parse("${key:aaaa}", props)).isEqualTo("value");
+    Assertions.assertThat(PropertyParser.parse("${key}", props))
+              .isEqualTo("value");
+    Assertions.assertThat(PropertyParser.parse("${key:aaaa}", props))
+              .isEqualTo("value");
     Assertions.assertThat(PropertyParser.parse("SELECT * FROM ${tableName:users} ORDER BY ${orderColumn:id}", props))
-        .isEqualTo("SELECT * FROM members ORDER BY member_id");
+              .isEqualTo("SELECT * FROM members ORDER BY member_id");
 
     props.setProperty(PropertyParser.KEY_ENABLE_DEFAULT_VALUE, "false");
-    Assertions.assertThat(PropertyParser.parse("${a:b}", props)).isEqualTo("c");
+    Assertions.assertThat(PropertyParser.parse("${a:b}", props))
+              .isEqualTo("c");
 
     props.remove(PropertyParser.KEY_ENABLE_DEFAULT_VALUE);
-    Assertions.assertThat(PropertyParser.parse("${a:b}", props)).isEqualTo("c");
+    Assertions.assertThat(PropertyParser.parse("${a:b}", props))
+              .isEqualTo("c");
 
   }
 
@@ -47,14 +51,18 @@ class PropertyParserTest {
   void notReplace() {
     Properties props = new Properties();
     props.setProperty(PropertyParser.KEY_ENABLE_DEFAULT_VALUE, "true");
-    Assertions.assertThat(PropertyParser.parse("${key}", props)).isEqualTo("${key}");
-    Assertions.assertThat(PropertyParser.parse("${key}", null)).isEqualTo("${key}");
+    Assertions.assertThat(PropertyParser.parse("${key}", props))
+              .isEqualTo("${key}");
+    Assertions.assertThat(PropertyParser.parse("${key}", null))
+              .isEqualTo("${key}");
 
     props.setProperty(PropertyParser.KEY_ENABLE_DEFAULT_VALUE, "false");
-    Assertions.assertThat(PropertyParser.parse("${a:b}", props)).isEqualTo("${a:b}");
+    Assertions.assertThat(PropertyParser.parse("${a:b}", props))
+              .isEqualTo("${a:b}");
 
     props.remove(PropertyParser.KEY_ENABLE_DEFAULT_VALUE);
-    Assertions.assertThat(PropertyParser.parse("${a:b}", props)).isEqualTo("${a:b}");
+    Assertions.assertThat(PropertyParser.parse("${a:b}", props))
+              .isEqualTo("${a:b}");
 
   }
 
@@ -62,12 +70,16 @@ class PropertyParserTest {
   void applyDefaultValue() {
     Properties props = new Properties();
     props.setProperty(PropertyParser.KEY_ENABLE_DEFAULT_VALUE, "true");
-    Assertions.assertThat(PropertyParser.parse("${key:default}", props)).isEqualTo("default");
+    Assertions.assertThat(PropertyParser.parse("${key:default}", props))
+              .isEqualTo("default");
     Assertions.assertThat(PropertyParser.parse("SELECT * FROM ${tableName:users} ORDER BY ${orderColumn:id}", props))
-        .isEqualTo("SELECT * FROM users ORDER BY id");
-    Assertions.assertThat(PropertyParser.parse("${key:}", props)).isEmpty();
-    Assertions.assertThat(PropertyParser.parse("${key: }", props)).isEqualTo(" ");
-    Assertions.assertThat(PropertyParser.parse("${key::}", props)).isEqualTo(":");
+              .isEqualTo("SELECT * FROM users ORDER BY id");
+    Assertions.assertThat(PropertyParser.parse("${key:}", props))
+              .isEmpty();
+    Assertions.assertThat(PropertyParser.parse("${key: }", props))
+              .isEqualTo(" ");
+    Assertions.assertThat(PropertyParser.parse("${key::}", props))
+              .isEqualTo(":");
   }
 
   @Test
@@ -75,14 +87,16 @@ class PropertyParserTest {
     Properties props = new Properties();
     props.setProperty(PropertyParser.KEY_ENABLE_DEFAULT_VALUE, "true");
     props.setProperty(PropertyParser.KEY_DEFAULT_VALUE_SEPARATOR, "?:");
-    Assertions.assertThat(PropertyParser.parse("${key?:default}", props)).isEqualTo("default");
-    Assertions
-        .assertThat(PropertyParser.parse(
-            "SELECT * FROM ${schema?:prod}.${tableName == null ? 'users' : tableName} ORDER BY ${orderColumn}", props))
-        .isEqualTo("SELECT * FROM prod.${tableName == null ? 'users' : tableName} ORDER BY ${orderColumn}");
-    Assertions.assertThat(PropertyParser.parse("${key?:}", props)).isEmpty();
-    Assertions.assertThat(PropertyParser.parse("${key?: }", props)).isEqualTo(" ");
-    Assertions.assertThat(PropertyParser.parse("${key?::}", props)).isEqualTo(":");
+    Assertions.assertThat(PropertyParser.parse("${key?:default}", props))
+              .isEqualTo("default");
+    Assertions.assertThat(PropertyParser.parse("SELECT * FROM ${schema?:prod}.${tableName == null ? 'users' : tableName} ORDER BY ${orderColumn}", props))
+              .isEqualTo("SELECT * FROM prod.${tableName == null ? 'users' : tableName} ORDER BY ${orderColumn}");
+    Assertions.assertThat(PropertyParser.parse("${key?:}", props))
+              .isEmpty();
+    Assertions.assertThat(PropertyParser.parse("${key?: }", props))
+              .isEqualTo(" ");
+    Assertions.assertThat(PropertyParser.parse("${key?::}", props))
+              .isEqualTo(":");
   }
 
 }

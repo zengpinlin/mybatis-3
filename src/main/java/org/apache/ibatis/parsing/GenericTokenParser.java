@@ -19,9 +19,17 @@ package org.apache.ibatis.parsing;
  * @author Clinton Begin
  */
 public class GenericTokenParser {
-
+  /**
+   * 开始标识符
+   */
   private final String openToken;
+  /**
+   * 结束标识符
+   */
   private final String closeToken;
+  /**
+   * TokenHandler处理接口
+   */
   private final TokenHandler handler;
 
   public GenericTokenParser(String openToken, String closeToken, TokenHandler handler) {
@@ -46,7 +54,8 @@ public class GenericTokenParser {
     do {
       if (start > 0 && src[start - 1] == '\\') {
         // this open token is escaped. remove the backslash and continue.
-        builder.append(src, offset, start - offset - 1).append(openToken);
+        builder.append(src, offset, start - offset - 1)
+               .append(openToken);
         offset = start + openToken.length();
       } else {
         // found open token. let's search close token.
@@ -64,7 +73,8 @@ public class GenericTokenParser {
             break;
           }
           // this close token is escaped. remove the backslash and continue.
-          expression.append(src, offset, end - offset - 1).append(closeToken);
+          expression.append(src, offset, end - offset - 1)
+                    .append(closeToken);
           offset = end + closeToken.length();
           end = text.indexOf(closeToken, offset);
         }

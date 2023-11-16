@@ -22,30 +22,26 @@ import java.util.Properties;
  * @author Kazuki Shimizu
  */
 public class PropertyParser {
-
+  /**
+   * 属性配置前置
+   */
   private static final String KEY_PREFIX = "org.apache.ibatis.parsing.PropertyParser.";
   /**
-   * The special property key that indicate whether enable a default value on placeholder.
-   * <p>
-   * The default value is {@code false} (indicate disable a default value on placeholder) If you specify the
-   * {@code true}, you can specify key and default value on placeholder (e.g. {@code ${db.username:postgres}}).
-   * </p>
-   *
-   * @since 3.4.2
+   * 配置默认填充值的key
    */
   public static final String KEY_ENABLE_DEFAULT_VALUE = KEY_PREFIX + "enable-default-value";
-
   /**
-   * The special property key that specify a separator for key and default value on placeholder.
-   * <p>
-   * The default separator is {@code ":"}.
-   * </p>
-   *
-   * @since 3.4.2
+   * 配置默认分隔符的key
    */
   public static final String KEY_DEFAULT_VALUE_SEPARATOR = KEY_PREFIX + "default-value-separator";
-
+  /**
+   * 是否开启默认填充的开关
+   * 默认为 false
+   */
   private static final String ENABLE_DEFAULT_VALUE = "false";
+  /**
+   * 默认分隔符
+   */
   private static final String DEFAULT_VALUE_SEPARATOR = ":";
 
   private PropertyParser() {
@@ -59,8 +55,21 @@ public class PropertyParser {
   }
 
   private static class VariableTokenHandler implements TokenHandler {
+    /**
+     * 配置信息
+     * 比如在properties中的配置信息
+     */
     private final Properties variables;
+    /**
+     * 是否启用默认值填充
+     * <code>true</code>启用
+     * <code>false</code>关闭
+     * 默认值为<code>false</code>
+     */
     private final boolean enableDefaultValue;
+    /**
+     * 默认的分隔符，默认为":"
+     */
     private final String defaultValueSeparator;
 
     private VariableTokenHandler(Properties variables) {
@@ -77,9 +86,12 @@ public class PropertyParser {
     public String handleToken(String content) {
       if (variables != null) {
         String key = content;
+        // 判断是否启用默认值填充
         if (enableDefaultValue) {
+          // 根据默认分隔符查找出现位置的索引
           final int separatorIndex = content.indexOf(defaultValueSeparator);
           String defaultValue = null;
+          // 有出现分隔符的情况才进行查找操作
           if (separatorIndex >= 0) {
             key = content.substring(0, separatorIndex);
             defaultValue = content.substring(separatorIndex + defaultValueSeparator.length());
@@ -88,10 +100,14 @@ public class PropertyParser {
             return variables.getProperty(key, defaultValue);
           }
         }
+
+        // 没有启用默认填充场景。简单判断下。是否有配置该key。有就直接获取返回
         if (variables.containsKey(key)) {
           return variables.getProperty(key);
         }
       }
+
+      // 返回默认拼接
       return "${" + content + "}";
     }
   }

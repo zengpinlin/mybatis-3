@@ -33,7 +33,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class GenericTokenParserTest {
 
   public static class VariableTokenHandler implements TokenHandler {
-    private Map<String, String> variables = new HashMap<>();
+    private final Map<String, String> variables;
 
     VariableTokenHandler(Map<String, String> variables) {
       this.variables = variables;
@@ -49,7 +49,7 @@ class GenericTokenParserTest {
   @MethodSource("shouldDemonstrateGenericTokenReplacementProvider")
   void shouldDemonstrateGenericTokenReplacement(String expected, String text) {
     GenericTokenParser parser = new GenericTokenParser("${", "}",
-        new VariableTokenHandler(new HashMap<String, String>() {
+        new VariableTokenHandler(new HashMap<>() {
           private static final long serialVersionUID = 1L;
 
           {
