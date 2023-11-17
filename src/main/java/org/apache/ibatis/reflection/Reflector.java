@@ -19,7 +19,9 @@ import org.apache.ibatis.reflection.invoker.*;
 import org.apache.ibatis.reflection.property.PropertyNamer;
 import org.apache.ibatis.util.MapUtil;
 
-import java.lang.invoke.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.text.MessageFormat;
 import java.util.*;
@@ -53,13 +55,13 @@ public class Reflector {
   /**
    * 记录属性对应的set方法的集合。
    * key是属性名称
-   * value是{@link Invoker}。把对应的{@link Method}封装成{@link MethodInvoker}
+   * value是{@link Invoker}
    */
   private final Map<String, Invoker> setMethods = new HashMap<>();
   /**
    * 记录属性对应的get方法的集合。
    * key是属性名称
-   * value是{@link Invoker}。把对应的{@link Method}封装成{@link MethodInvoker}
+   * value是{@link Invoker}。
    */
   private final Map<String, Invoker> getMethods = new HashMap<>();
   /**
@@ -90,9 +92,9 @@ public class Reflector {
     if (isRecord(type)) {
       addRecordGetMethods(classMethods);
     } else {
-      // 4:添加 getMethods方法
+      // 4:初始化 getMethods 和getTypes
       addGetMethods(classMethods);
-      // 5:添加 getMethods方法
+      // 5:初始化 setMethods 和 getTypes
       addSetMethods(classMethods);
       // 6:添加字段
       addFields(clazz);
@@ -111,7 +113,8 @@ public class Reflector {
   }
 
   private void addRecordGetMethods(Method[] methods) {
-    Arrays.stream(methods).filter(m -> m.getParameterTypes().length == 0).forEach(m -> addGetMethod(m.getName(), m, false));
+    Arrays.stream(methods).filter(m -> m.getParameterTypes().length == 0)
+          .forEach(m -> addGetMethod(m.getName(), m, false));
   }
 
   /**
@@ -191,7 +194,8 @@ public class Reflector {
                                                                      MessageFormat.format(
                                                                        "Illegal overloaded getter method with ambiguous type for property ''{0}'' in class ''{1}''. This breaks the JavaBeans specification and can cause unpredictable results.",
                                                                        name,
-                                                                       method.getDeclaringClass().getName())) : new MethodInvoker(method);
+                                                                       method.getDeclaringClass()
+                                                                             .getName())) : new MethodInvoker(method);
     getMethods.put(name, invoker);
     // 解析方法的返回类型
     Type returnType = TypeParameterResolver.resolveReturnType(method, type);
@@ -219,18 +223,24 @@ public class Reflector {
 
   private void resolveSetterConflicts(Map<String, List<Method>> conflictingSetters) {
     for (Entry<String, List<Method>> entry : conflictingSetters.entrySet()) {
+      // 属性名
       String propName = entry.getKey();
+      // setter方法集合
       List<Method> setters = entry.getValue();
+      // getter方法的返回值类型
       Class<?> getterType = getTypes.get(propName);
+      // getter方法是否存在歧义的方法重载
       boolean isGetterAmbiguous = getMethods.get(propName) instanceof AmbiguousMethodInvoker;
       boolean isSetterAmbiguous = false;
       Method match = null;
       for (Method setter : setters) {
+        // getter方法的没有歧义并且getter的返回值类型和setter方法的形参类型一致
         if (!isGetterAmbiguous && setter.getParameterTypes()[0].equals(getterType)) {
           // should be the best match
           match = setter;
           break;
         }
+        // 执行到这里。说明setter也有歧义。需要找出最合适的setter方法
         if (!isSetterAmbiguous) {
           match = pickBetterSetter(match, setter, propName);
           isSetterAmbiguous = match == null;
@@ -242,18 +252,31 @@ public class Reflector {
     }
   }
 
+  /**
+   * 查找最合适的setter方法
+   *
+   * @param setter1  最佳匹配的方法
+   * @param setter2  当前需要匹配的方法
+   * @param property 属性名
+   * @author zpl
+   * @date 2023/11/16 22:03
+   */
   private Method pickBetterSetter(Method setter1, Method setter2, String property) {
     if (setter1 == null) {
       return setter2;
     }
+
+    // 获取形参的参数类型
     Class<?> paramType1 = setter1.getParameterTypes()[0];
     Class<?> paramType2 = setter2.getParameterTypes()[0];
     if (paramType1.isAssignableFrom(paramType2)) {
       return setter2;
     }
+
     if (paramType2.isAssignableFrom(paramType1)) {
       return setter1;
     }
+
     MethodInvoker invoker = new AmbiguousMethodInvoker(setter1,
                                                        MessageFormat.format(
                                                          "Ambiguous setters defined for property ''{0}'' in class ''{1}'' with types ''{2}'' and ''{3}''.",
@@ -311,6 +334,7 @@ public class Reflector {
         addGetField(field);
       }
     }
+    // 存在父级。继续递归
     if (clazz.getSuperclass() != null) {
       addFields(clazz.getSuperclass());
     }
@@ -383,7 +407,7 @@ public class Reflector {
   /**
    * 获取签名。用于唯一性校验
    * <p>
-   * 格式为：返回值类型名称#方法名称:参数类型列表
+   * 格式为：返回值类型名称#方法名称:参数1,参数2,参数3
    *
    * @author zpl
    * @date 2023/11/12 11:16
