@@ -15,16 +15,16 @@
  */
 package org.apache.ibatis.reflection;
 
+import org.apache.ibatis.reflection.invoker.GetFieldInvoker;
+import org.apache.ibatis.reflection.invoker.Invoker;
+import org.apache.ibatis.reflection.invoker.MethodInvoker;
+import org.apache.ibatis.reflection.property.PropertyTokenizer;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-
-import org.apache.ibatis.reflection.invoker.GetFieldInvoker;
-import org.apache.ibatis.reflection.invoker.Invoker;
-import org.apache.ibatis.reflection.invoker.MethodInvoker;
-import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * @author Clinton Begin
@@ -96,12 +96,17 @@ public class MetaClass {
     Class<?> type = reflector.getGetterType(prop.getName());
     if (prop.getIndex() != null && Collection.class.isAssignableFrom(type)) {
       Type returnType = getGenericGetterType(prop.getName());
+      // 返回类型是否为泛型
       if (returnType instanceof ParameterizedType) {
+        // 获取泛型化实质参数类型。比如List<String>中的String Map<String,Object>中的String和Object
         Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
+        // 只处理泛型化参数只有一个的场景
         if (actualTypeArguments != null && actualTypeArguments.length == 1) {
           returnType = actualTypeArguments[0];
+          // 如果返回值是一个原生类型类型，直接返回
           if (returnType instanceof Class) {
             type = (Class<?>) returnType;
+            // 如果是泛型，获取原生类型返回
           } else if (returnType instanceof ParameterizedType) {
             type = (Class<?>) ((ParameterizedType) returnType).getRawType();
           }
@@ -145,14 +150,20 @@ public class MetaClass {
   }
 
   public boolean hasGetter(String name) {
+    // 解析属性表达式
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    // 如果没有子表表达式
     if (!prop.hasNext()) {
       return reflector.hasGetter(prop.getName());
     }
+
+    // 有子表达式的情况
     if (reflector.hasGetter(prop.getName())) {
       MetaClass metaProp = metaClassForProperty(prop);
+      // 继续递归子表达式
       return metaProp.hasGetter(prop.getChildren());
     }
+
     return false;
   }
 

@@ -15,11 +15,13 @@
  */
 package org.apache.ibatis.reflection.property;
 
-import java.lang.reflect.Field;
-
 import org.apache.ibatis.reflection.Reflector;
 
+import java.lang.reflect.Field;
+
 /**
+ * 属性复制器
+ *
  * @author Clinton Begin
  */
 public final class PropertyCopier {

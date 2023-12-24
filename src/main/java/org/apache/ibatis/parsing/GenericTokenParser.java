@@ -42,15 +42,19 @@ public class GenericTokenParser {
     if (text == null || text.isEmpty()) {
       return "";
     }
-    // search open token
+
+    // 查看开始占位符的起始位置
     int start = text.indexOf(openToken);
+    // 如果没有找到，说明不是动态获取值的
     if (start == -1) {
       return text;
     }
+
     char[] src = text.toCharArray();
     int offset = 0;
     final StringBuilder builder = new StringBuilder();
     StringBuilder expression = null;
+
     do {
       if (start > 0 && src[start - 1] == '\\') {
         // this open token is escaped. remove the backslash and continue.
@@ -89,6 +93,7 @@ public class GenericTokenParser {
       }
       start = text.indexOf(openToken, offset);
     } while (start > -1);
+
     if (offset < src.length) {
       builder.append(src, offset, src.length - offset);
     }

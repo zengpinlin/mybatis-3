@@ -15,14 +15,14 @@
  */
 package org.apache.ibatis.builder.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-
 import org.apache.ibatis.io.Resources;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
 
 /**
  * Offline entity resolver for the MyBatis DTDs.
@@ -37,30 +37,35 @@ public class XMLMapperEntityResolver implements EntityResolver {
   private static final String MYBATIS_CONFIG_SYSTEM = "mybatis-3-config.dtd";
   private static final String MYBATIS_MAPPER_SYSTEM = "mybatis-3-mapper.dtd";
 
+  /**
+   * config dtd 存放路径
+   */
   private static final String MYBATIS_CONFIG_DTD = "org/apache/ibatis/builder/xml/mybatis-3-config.dtd";
+  /**
+   * Mapper dtd 存放路径
+   */
   private static final String MYBATIS_MAPPER_DTD = "org/apache/ibatis/builder/xml/mybatis-3-mapper.dtd";
 
   /**
    * Converts a public DTD into a local one.
    *
-   * @param publicId
-   *          The public id that is what comes after "PUBLIC"
-   * @param systemId
-   *          The system id that is what comes after the public id.
-   *
+   * @param publicId The public id that is what comes after "PUBLIC"
+   * @param systemId The system id that is what comes after the public id.
    * @return The InputSource for the DTD
-   *
-   * @throws org.xml.sax.SAXException
-   *           If anything goes wrong
+   * @throws org.xml.sax.SAXException If anything goes wrong
    */
   @Override
   public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
     try {
       if (systemId != null) {
+        // 转换为小写
         String lowerCaseSystemId = systemId.toLowerCase(Locale.ENGLISH);
+        // 加载 config dtd
         if (lowerCaseSystemId.contains(MYBATIS_CONFIG_SYSTEM) || lowerCaseSystemId.contains(IBATIS_CONFIG_SYSTEM)) {
           return getInputSource(MYBATIS_CONFIG_DTD, publicId, systemId);
         }
+
+        // 加载 mapper dtd
         if (lowerCaseSystemId.contains(MYBATIS_MAPPER_SYSTEM) || lowerCaseSystemId.contains(IBATIS_MAPPER_SYSTEM)) {
           return getInputSource(MYBATIS_MAPPER_DTD, publicId, systemId);
         }

@@ -37,6 +37,11 @@
         </environment>
     </environments>
 
+
+    <properties resource="com.zpl.example.config.properties">
+
+    </properties>
+
     <mappers>
         <mapper resource="org/apache/ibatis/autoconstructor/AutoConstructorMapper.xml"/>
     </mappers>

@@ -51,6 +51,8 @@ public class XPathParser {
   /**
    * 实体解析器。主要校验 xsd和dtd
    * <p>
+   * 主要是为了弱网或无网场景，解决下载 dtd和xsd的问题
+   * <p>
    * 对应的mybatis的默认实现为 {@link org.apache.ibatis.builder.xml.XMLMapperEntityResolver}
    */
   private EntityResolver entityResolver;
@@ -210,8 +212,10 @@ public class XPathParser {
 
   public List<XNode> evalNodes(Object root, String expression) {
     List<XNode> xnodes = new ArrayList<>();
+    // 获取节点列表
     NodeList nodes = (NodeList) evaluate(expression, root, XPathConstants.NODESET);
     for (int i = 0; i < nodes.getLength(); i++) {
+      // 封装XNode
       xnodes.add(new XNode(this, nodes.item(i), variables));
     }
     return xnodes;
@@ -229,6 +233,16 @@ public class XPathParser {
     return new XNode(this, node, variables);
   }
 
+  /**
+   * 获取xml元素指定的值
+   *
+   * @param expression 表达式
+   * @param root       节点对象
+   * @param returnType 返回值类型
+   * @return 返回要获取的值
+   * @author zpl
+   * @date 2023/12/23 18:39
+   */
   private Object evaluate(String expression, Object root, QName returnType) {
     try {
       return xpath.evaluate(expression, root, returnType);
@@ -240,10 +254,13 @@ public class XPathParser {
   private Document createDocument(InputSource inputSource) {
     // important: this must only be called AFTER common constructor
     try {
+      // 创建DocumentBuilderFactory对象
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      // 启用安全方式的处理xml
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      // 设置是否验证xml
       factory.setValidating(validation);
-
+      // 其它一些验证参数
       factory.setNamespaceAware(false);
       factory.setIgnoringComments(true);
       factory.setIgnoringElementContentWhitespace(false);
@@ -251,6 +268,7 @@ public class XPathParser {
       factory.setExpandEntityReferences(true);
 
       DocumentBuilder builder = factory.newDocumentBuilder();
+      // xml实体解析器
       builder.setEntityResolver(entityResolver);
       builder.setErrorHandler(new ErrorHandler() {
         @Override
@@ -268,6 +286,7 @@ public class XPathParser {
           // NOP
         }
       });
+      // 把xml解析成Document对象放回
       return builder.parse(inputSource);
     } catch (Exception e) {
       throw new BuilderException("Error creating document instance.  Cause: " + e, e);

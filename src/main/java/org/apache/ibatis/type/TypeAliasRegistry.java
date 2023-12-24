@@ -15,22 +15,13 @@
  */
 package org.apache.ibatis.type;
 
+import org.apache.ibatis.io.ResolverUtil;
+import org.apache.ibatis.io.Resources;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.ibatis.io.ResolverUtil;
-import org.apache.ibatis.io.Resources;
+import java.util.*;
 
 /**
  * @author Clinton Begin
@@ -161,9 +152,10 @@ public class TypeAliasRegistry {
     }
     // issue #748
     String key = alias.toLowerCase(Locale.ENGLISH);
-    if (typeAliases.containsKey(key) && typeAliases.get(key) != null && !typeAliases.get(key).equals(value)) {
-      throw new TypeException(
-          "The alias '" + alias + "' is already mapped to the value '" + typeAliases.get(key).getName() + "'.");
+    if (typeAliases.containsKey(key) && typeAliases.get(key) != null && !typeAliases.get(key)
+                                                                                    .equals(value)) {
+      throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + typeAliases.get(key)
+                                                                                                        .getName() + "'.");
     }
     typeAliases.put(key, value);
   }
@@ -180,7 +172,6 @@ public class TypeAliasRegistry {
    * Gets the type aliases.
    *
    * @return the type aliases
-   *
    * @since 3.2.2
    */
   public Map<String, Class<?>> getTypeAliases() {

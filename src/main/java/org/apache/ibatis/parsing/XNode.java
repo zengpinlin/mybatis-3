@@ -363,6 +363,7 @@ public class XNode {
   }
 
   private String getBodyData(Node child) {
+    // 如果没有子级或者当前node是文本了,直接获取值然后解析
     if (child.getNodeType() == Node.CDATA_SECTION_NODE || child.getNodeType() == Node.TEXT_NODE) {
       String data = ((CharacterData) child).getData();
       return PropertyParser.parse(data, variables);

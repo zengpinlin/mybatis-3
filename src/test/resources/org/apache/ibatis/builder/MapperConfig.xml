@@ -22,7 +22,9 @@
 
 <configuration>
 
-  <properties resource="org/apache/ibatis/databases/blog/blog-derby.properties"/>
+  <properties resource="org/apache/ibatis/databases/blog/blog-derby.properties">
+
+  </properties>
 
   <settings>
     <setting name="cacheEnabled" value="true"/>

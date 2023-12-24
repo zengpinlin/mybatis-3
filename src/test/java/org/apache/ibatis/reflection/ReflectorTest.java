@@ -20,7 +20,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
 import static com.googlecode.catchexception.apis.BDDCatchException.when;
@@ -36,18 +38,6 @@ class ReflectorTest {
     Assertions.assertEquals(Long.class, reflector.getSetterType("id"));
   }
 
-  @Test
-  void testMethod() {
-    ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
-    Reflector reflector = reflectorFactory.findForClass(Demo2.class);
-  }
-
-  @Test
-  void testIsMethodPriority() {
-    ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
-    Reflector reflector = reflectorFactory.findForClass(People.class);
-    Assertions.assertEquals(boolean.class, reflector.getGetterType("enable"));
-  }
 
   @Test
   void testGetGetterType() {
@@ -134,8 +124,10 @@ class ReflectorTest {
     Reflector reflector = reflectorFactory.findForClass(Child.class);
     Class<?> clazz = reflector.getSetterType("array");
     assertTrue(clazz.isArray());
+    // 比较数据是否为String类型 ,Class#getComponentType()方法表示获取数组类型
     assertEquals(String.class, clazz.getComponentType());
   }
+
 
   @Test
   void shouldResolveGetterType() {
@@ -364,7 +356,8 @@ class ReflectorTest {
     }
     ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
     Reflector reflector = reflectorFactory.findForClass(Bean.class);
-    assertTrue((Boolean) reflector.getGetInvoker("bool").invoke(new Bean(), new Byte[0]));
+    assertTrue((Boolean) reflector.getGetInvoker("bool")
+                                  .invoke(new Bean(), new Byte[0]));
   }
 
   @Test
@@ -396,4 +389,19 @@ class ReflectorTest {
                                                                                                                       .replace("$",
                                                                                                                                "\\$") + "' with types '(java.lang.Integer|boolean)' and '(java.lang.Integer|boolean)'\\.");
   }
+
+
+  @Test
+  void testMethod() {
+    ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+    Reflector reflector = reflectorFactory.findForClass(Demo2.class);
+  }
+
+  @Test
+  void testIsMethodPriority() {
+    ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+    Reflector reflector = reflectorFactory.findForClass(People.class);
+    Assertions.assertEquals(boolean.class, reflector.getGetterType("enable"));
+  }
+
 }

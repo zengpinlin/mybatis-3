@@ -19,5 +19,13 @@ package org.apache.ibatis.parsing;
  * @author Clinton Begin
  */
 public interface TokenHandler {
+  /**
+   * 处理 token(可以理解为解析xml配置的占位符)
+   *
+   * @param content 要处理的内容
+   * @return 返回解析后的内容
+   * @author zpl
+   * @date 2023/12/23 22:23
+   */
   String handleToken(String content);
 }

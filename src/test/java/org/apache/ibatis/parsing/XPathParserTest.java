@@ -15,24 +15,24 @@
  */
 package org.apache.ibatis.parsing;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.io.Resources;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class XPathParserTest {
   private final String resource = "nodelet_test.xml";
+
 
   // InputStream Source
   @Test
@@ -180,32 +180,62 @@ class XPathParserTest {
   }
 
   enum EnumTest {
-    YES, NO
+    YES,
+    NO
   }
 
   private void testEvalMethod(XPathParser parser) {
     assertEquals((Long) 1970L, parser.evalLong("/employee/birth_date/year"));
-    assertEquals((Long) 1970L, parser.evalNode("/employee/birth_date/year").getLongBody());
+    assertEquals((Long) 1970L,
+                 parser.evalNode("/employee/birth_date/year")
+                       .getLongBody());
     assertEquals((short) 6, (short) parser.evalShort("/employee/birth_date/month"));
     assertEquals((Integer) 15, parser.evalInteger("/employee/birth_date/day"));
-    assertEquals((Integer) 15, parser.evalNode("/employee/birth_date/day").getIntBody());
+    assertEquals((Integer) 15,
+                 parser.evalNode("/employee/birth_date/day")
+                       .getIntBody());
     assertEquals((Float) 5.8f, parser.evalFloat("/employee/height"));
-    assertEquals((Float) 5.8f, parser.evalNode("/employee/height").getFloatBody());
+    assertEquals((Float) 5.8f,
+                 parser.evalNode("/employee/height")
+                       .getFloatBody());
     assertEquals((Double) 5.8d, parser.evalDouble("/employee/height"));
-    assertEquals((Double) 5.8d, parser.evalNode("/employee/height").getDoubleBody());
-    assertEquals((Double) 5.8d, parser.evalNode("/employee").evalDouble("height"));
+    assertEquals((Double) 5.8d,
+                 parser.evalNode("/employee/height")
+                       .getDoubleBody());
+    assertEquals((Double) 5.8d,
+                 parser.evalNode("/employee")
+                       .evalDouble("height"));
     assertEquals("${id_var}", parser.evalString("/employee/@id"));
-    assertEquals("${id_var}", parser.evalNode("/employee/@id").getStringBody());
-    assertEquals("${id_var}", parser.evalNode("/employee").evalString("@id"));
+    assertEquals("${id_var}",
+                 parser.evalNode("/employee/@id")
+                       .getStringBody());
+    assertEquals("${id_var}",
+                 parser.evalNode("/employee")
+                       .evalString("@id"));
     assertEquals(Boolean.TRUE, parser.evalBoolean("/employee/active"));
-    assertEquals(Boolean.TRUE, parser.evalNode("/employee/active").getBooleanBody());
-    assertEquals(Boolean.TRUE, parser.evalNode("/employee").evalBoolean("active"));
-    assertEquals(EnumTest.YES, parser.evalNode("/employee/active").getEnumAttribute(EnumTest.class, "bot"));
-    assertEquals((Float) 3.2f, parser.evalNode("/employee/active").getFloatAttribute("score"));
-    assertEquals((Double) 3.2d, parser.evalNode("/employee/active").getDoubleAttribute("score"));
+    assertEquals(Boolean.TRUE,
+                 parser.evalNode("/employee/active")
+                       .getBooleanBody());
+    assertEquals(Boolean.TRUE,
+                 parser.evalNode("/employee")
+                       .evalBoolean("active"));
+    assertEquals(EnumTest.YES,
+                 parser.evalNode("/employee/active")
+                       .getEnumAttribute(EnumTest.class, "bot"));
+    assertEquals((Float) 3.2f,
+                 parser.evalNode("/employee/active")
+                       .getFloatAttribute("score"));
+    assertEquals((Double) 3.2d,
+                 parser.evalNode("/employee/active")
+                       .getDoubleAttribute("score"));
 
-    assertEquals("<id>${id_var}</id>", parser.evalNode("/employee/@id").toString().trim());
-    assertEquals(7, parser.evalNodes("/employee/*").size());
+    assertEquals("<id>${id_var}</id>",
+                 parser.evalNode("/employee/@id")
+                       .toString()
+                       .trim());
+    assertEquals(7,
+                 parser.evalNodes("/employee/*")
+                       .size());
     XNode node = parser.evalNode("/employee/height");
     assertEquals("employee/height", node.getPath());
     assertEquals("employee[${id_var}]_height", node.getValueBasedIdentifier());
@@ -214,10 +244,13 @@ class XPathParserTest {
   @Test
   void formatXNodeToString() {
     XPathParser parser = new XPathParser(
-        "<users><user><id>100</id><name>Tom</name><age>30</age><cars><car index=\"1\">BMW</car><car index=\"2\">Audi</car><car index=\"3\">Benz</car></cars></user></users>");
-    String usersNodeToString = parser.evalNode("/users").toString();
-    String userNodeToString = parser.evalNode("/users/user").toString();
-    String carsNodeToString = parser.evalNode("/users/user/cars").toString();
+      "<users><user><id>100</id><name>Tom</name><age>30</age><cars><car index=\"1\">BMW</car><car index=\"2\">Audi</car><car index=\"3\">Benz</car></cars></user></users>");
+    String usersNodeToString = parser.evalNode("/users")
+                                     .toString();
+    String userNodeToString = parser.evalNode("/users/user")
+                                    .toString();
+    String carsNodeToString = parser.evalNode("/users/user/cars")
+                                    .toString();
 
     // @formatter:off
     String usersNodeToStringExpect =
@@ -262,5 +295,20 @@ class XPathParserTest {
     assertEquals(userNodeToStringExpect, userNodeToString);
     assertEquals(carsNodeToStringExpect, carsNodeToString);
   }
+
+
+  @Test
+  void testCustomXmlTest() throws Exception {
+    String resource = "zpl_test.xml";
+    try (InputStream input = Resources.getResourceAsStream(resource)) {
+      XPathParser parser = new XPathParser(input);
+      assertEquals("靓仔", parser.evalString("/zpl/userName"));
+
+      XNode userNameNode = parser.evalNode("/zpl/userName");
+      assertEquals("1" , userNameNode.getStringAttribute("id"));
+      assertEquals("2332" , userNameNode.getStringAttribute("password"));
+    }
+  }
+
 
 }

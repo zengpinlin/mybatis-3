@@ -15,21 +15,15 @@
  */
 package org.apache.ibatis.reflection;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class ParamNameResolver {
 
@@ -91,7 +85,8 @@ public class ParamNameResolver {
   }
 
   private String getActualParamName(Method method, int paramIndex) {
-    return ParamNameUtil.getParamNames(method).get(paramIndex);
+    return ParamNameUtil.getParamNames(method)
+                        .get(paramIndex);
   }
 
   private static boolean isSpecialParameter(Class<?> clazz) {
@@ -104,7 +99,8 @@ public class ParamNameResolver {
    * @return the names
    */
   public String[] getNames() {
-    return names.values().toArray(new String[0]);
+    return names.values()
+                .toArray(new String[0]);
   }
 
   /**
@@ -113,9 +109,7 @@ public class ParamNameResolver {
    * addition to the default names, this method also adds the generic names (param1, param2, ...).
    * </p>
    *
-   * @param args
-   *          the args
-   *
+   * @param args the args
    * @return the named params
    */
   public Object getNamedParams(Object[] args) {
@@ -146,13 +140,9 @@ public class ParamNameResolver {
   /**
    * Wrap to a {@link ParamMap} if object is {@link Collection} or array.
    *
-   * @param object
-   *          a parameter object
-   * @param actualParamName
-   *          an actual parameter name (If specify a name, set an object to {@link ParamMap} with specified name)
-   *
+   * @param object          a parameter object
+   * @param actualParamName an actual parameter name (If specify a name, set an object to {@link ParamMap} with specified name)
    * @return a {@link ParamMap}
-   *
    * @since 3.5.5
    */
   public static Object wrapToMapIfCollection(Object object, String actualParamName) {
@@ -162,13 +152,16 @@ public class ParamNameResolver {
       if (object instanceof List) {
         map.put("list", object);
       }
-      Optional.ofNullable(actualParamName).ifPresent(name -> map.put(name, object));
+      Optional.ofNullable(actualParamName)
+              .ifPresent(name -> map.put(name, object));
       return map;
     }
-    if (object != null && object.getClass().isArray()) {
+    if (object != null && object.getClass()
+                                .isArray()) {
       ParamMap<Object> map = new ParamMap<>();
       map.put("array", object);
-      Optional.ofNullable(actualParamName).ifPresent(name -> map.put(name, object));
+      Optional.ofNullable(actualParamName)
+              .ifPresent(name -> map.put(name, object));
       return map;
     }
     return object;

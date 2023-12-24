@@ -15,16 +15,15 @@
  */
 package org.apache.ibatis.transaction.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionException;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * {@link Transaction} that makes use of the JDBC commit and rollback facilities directly. It relies on the connection
@@ -32,7 +31,6 @@ import org.apache.ibatis.transaction.TransactionException;
  * getConnection() is called. Ignores commit or rollback requests when autocommit is on.
  *
  * @author Clinton Begin
- *
  * @see JdbcTransactionFactory
  */
 public class JdbcTransaction implements Transaction {
@@ -49,8 +47,7 @@ public class JdbcTransaction implements Transaction {
     this(ds, desiredLevel, desiredAutoCommit, false);
   }
 
-  public JdbcTransaction(DataSource ds, TransactionIsolationLevel desiredLevel, boolean desiredAutoCommit,
-      boolean skipSetAutoCommitOnClose) {
+  public JdbcTransaction(DataSource ds, TransactionIsolationLevel desiredLevel, boolean desiredAutoCommit, boolean skipSetAutoCommitOnClose) {
     dataSource = ds;
     level = desiredLevel;
     autoCommit = desiredAutoCommit;
@@ -111,10 +108,8 @@ public class JdbcTransaction implements Transaction {
     } catch (SQLException e) {
       // Only a very poorly implemented driver would fail here,
       // and there's not much we can do about that.
-      throw new TransactionException(
-          "Error configuring AutoCommit.  " + "Your driver may not support getAutoCommit() or setAutoCommit(). "
-              + "Requested setting: " + desiredAutoCommit + ".  Cause: " + e,
-          e);
+      throw new TransactionException("Error configuring AutoCommit.  " + "Your driver may not support getAutoCommit() or setAutoCommit(). " + "Requested setting: " + desiredAutoCommit + ".  Cause: " + e,
+                                     e);
     }
   }
 

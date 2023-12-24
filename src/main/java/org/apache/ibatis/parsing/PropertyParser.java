@@ -23,7 +23,7 @@ import java.util.Properties;
  */
 public class PropertyParser {
   /**
-   * 属性配置前置
+   * 默认分割填充的 key 前缀
    */
   private static final String KEY_PREFIX = "org.apache.ibatis.parsing.PropertyParser.";
   /**
@@ -74,13 +74,16 @@ public class PropertyParser {
 
     private VariableTokenHandler(Properties variables) {
       this.variables = variables;
+      // 获取是否启用默认填充配置
       this.enableDefaultValue = Boolean.parseBoolean(getPropertyValue(KEY_ENABLE_DEFAULT_VALUE, ENABLE_DEFAULT_VALUE));
+      // 分隔符
       this.defaultValueSeparator = getPropertyValue(KEY_DEFAULT_VALUE_SEPARATOR, DEFAULT_VALUE_SEPARATOR);
     }
 
     private String getPropertyValue(String key, String defaultValue) {
       return variables == null ? defaultValue : variables.getProperty(key, defaultValue);
     }
+
 
     @Override
     public String handleToken(String content) {
@@ -93,12 +96,18 @@ public class PropertyParser {
           String defaultValue = null;
           // 有出现分隔符的情况才进行查找操作
           if (separatorIndex >= 0) {
+            // 根据出现的索引截取。比如输入的内容为 userName:zpl
+            // 那么截取的就是 userName
             key = content.substring(0, separatorIndex);
+            // 截取默认值
             defaultValue = content.substring(separatorIndex + defaultValueSeparator.length());
           }
+
+          // 如果默认值不为空的情况，从variables根据key获取值，如果获取不到返回默认值
           if (defaultValue != null) {
             return variables.getProperty(key, defaultValue);
           }
+
         }
 
         // 没有启用默认填充场景。简单判断下。是否有配置该key。有就直接获取返回
@@ -107,7 +116,7 @@ public class PropertyParser {
         }
       }
 
-      // 返回默认拼接
+      // 如果都没有配置variables的情况下。返回默认拼接
       return "${" + content + "}";
     }
   }
